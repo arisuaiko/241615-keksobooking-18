@@ -107,7 +107,7 @@ function createPin(mapPinTemplate, marker) {
 
 function insertPins() {
   var listAds = generateAdvert();
-  var pinMap = document.querySelector('.map__pin');
+  var pinMap = document.querySelector('.map__pins');
   var fragment = document.createDocumentFragment();
 
   for (var i = 0; i < listAds.length; i++) {
