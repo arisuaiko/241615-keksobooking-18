@@ -20,10 +20,14 @@ var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.g
 var mapDialog = document.querySelector('.map');
 mapDialog.classList.remove('map--faded');
 
+var mapPinTemplate = document.querySelector('#pin')
+    .content
+    .querySelector('button');
+
 // Функция, возвращающая случайный элемемент массива
 function getRandomElement(array) {
   for (var i = 0; i < array.length; i++) {
-    var randomIndex = Math.floor(Math.random() * array.length);
+    var randomIndex = getRandomNumber();
   }
   var randomElement = array[randomIndex];
   return randomElement;
@@ -80,28 +84,36 @@ function generateAdvert() {
   return advert;
 }
 
-// Создаем шаблон по которому будут собираться все метки для карты
-function createPin(marker) {
-  var userLocation = document.createElement('button');
-  var userAvatar = document.createElement('img');
-  userLocation.className = 'map__pin';
-  userLocation.style.left = (marker.location.x + PIN_WIDTH / 2) + 'px';
-  userLocation.style.top = (marker.location.y + PIN_HEIGHT) + 'px';
-  userAvatar.width = 40;
-  userAvatar.height = 40;
-  userAvatar.src = marker.author.avatar;
-  userAvatar.alt = marker.offer.title;
-  userLocation.appendChild(userAvatar);
-  return userLocation;
+// Вставляем данные в шаблон, по которому будут собираться все метки для карты
+// eslint-disable-next-line no-shadow
+function createPin(mapPinTemplate, marker) {
+  var advertList = generateAdvert();
+
+  for (var i = 0; i < advertList.length; i++) {
+    var element = mapPinTemplate.cloneNode(true);
+
+    var userAvatar = element.querySelector('img');
+    userAvatar.width = 40;
+    userAvatar.height = 40;
+    userAvatar.src = marker.author.avatar;
+    userAvatar.alt = marker.offer.title;
+    element.style.left = (marker.location.x + PIN_WIDTH / 2) + 'px';
+    element.style.top = (marker.location.y + PIN_HEIGHT) + 'px';
+
+  }
+  return element;
 }
 
+
 function insertPins() {
+  var listAds = generateAdvert();
   var pinMap = document.querySelector('.map__pin');
   var fragment = document.createDocumentFragment();
+
   for (var i = 0; i < listAds.length; i++) {
-    fragment.appendChild(createPin(listAds[i]));
+    fragment.appendChild(createPin(mapPinTemplate, listAds[i]));
   }
   pinMap.appendChild(fragment);
 }
-var listAds = generateAdvert();
+
 insertPins();
