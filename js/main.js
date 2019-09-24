@@ -17,15 +17,6 @@ var OFFER_TITLE = ['Удобная квартира', 'Неудобная ква
 var HOURS = ['12:00', '13:00', '14:00'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 
-var mapDialog = document.querySelector('.map');
-mapDialog.classList.remove('map--faded');
-
-var mapPinTemplate = document.querySelector('#pin')
-    .content
-    .querySelector('button');
-
-var pinMap = document.querySelector('.map__pins');
-
 // Функция, возвращающая случайный элемемент массива
 function getRandomElement(array) {
   var randomIndex = getRandomNumber(0, array.length);
@@ -85,9 +76,8 @@ function generateAdvert() {
 }
 
 // Вставляем данные в шаблон, по которому будут собираться все метки для карты
-// eslint-disable-next-line no-shadow
-function createPin(mapPinTemplate, marker) {
-  var element = mapPinTemplate.cloneNode(true);
+function createPin(template, marker) {
+  var element = template.cloneNode(true);
 
   var userAvatar = element.querySelector('img');
   userAvatar.src = marker.author.avatar;
@@ -98,14 +88,19 @@ function createPin(mapPinTemplate, marker) {
   return element;
 }
 
-function insertPins() {
+function insertPins(template) {
   var listAds = generateAdvert();
   var fragment = document.createDocumentFragment();
 
   for (var i = 0; i < listAds.length; i++) {
-    fragment.appendChild(createPin(mapPinTemplate, listAds[i]));
+    fragment.appendChild(createPin(template, listAds[i]));
   }
-  pinMap.appendChild(fragment);
+  return fragment;
 }
+var mapDialog = document.querySelector('.map');
+mapDialog.classList.remove('map--faded');
+var mapPinTemplate = document.querySelector('#pin').content.querySelector('button');
+var pinsFragment = insertPins(mapPinTemplate);
+var pinMap = document.querySelector('.map__pins');
+pinMap.append(pinsFragment);
 
-insertPins();
