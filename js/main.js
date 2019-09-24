@@ -24,11 +24,11 @@ var mapPinTemplate = document.querySelector('#pin')
     .content
     .querySelector('button');
 
+var pinMap = document.querySelector('.map__pins');
+
 // Функция, возвращающая случайный элемемент массива
 function getRandomElement(array) {
-  for (var i = 0; i < array.length; i++) {
-    var randomIndex = getRandomNumber();
-  }
+  var randomIndex = getRandomNumber(0, array.length);
   var randomElement = array[randomIndex];
   return randomElement;
 }
@@ -87,27 +87,19 @@ function generateAdvert() {
 // Вставляем данные в шаблон, по которому будут собираться все метки для карты
 // eslint-disable-next-line no-shadow
 function createPin(mapPinTemplate, marker) {
-  var advertList = generateAdvert();
+  var element = mapPinTemplate.cloneNode(true);
 
-  for (var i = 0; i < advertList.length; i++) {
-    var element = mapPinTemplate.cloneNode(true);
+  var userAvatar = element.querySelector('img');
+  userAvatar.src = marker.author.avatar;
+  userAvatar.alt = marker.offer.title;
+  element.style.left = (marker.location.x + PIN_WIDTH / 2) + 'px';
+  element.style.top = (marker.location.y + PIN_HEIGHT) + 'px';
 
-    var userAvatar = element.querySelector('img');
-    userAvatar.width = 40;
-    userAvatar.height = 40;
-    userAvatar.src = marker.author.avatar;
-    userAvatar.alt = marker.offer.title;
-    element.style.left = (marker.location.x + PIN_WIDTH / 2) + 'px';
-    element.style.top = (marker.location.y + PIN_HEIGHT) + 'px';
-
-  }
   return element;
 }
 
-
 function insertPins() {
   var listAds = generateAdvert();
-  var pinMap = document.querySelector('.map__pins');
   var fragment = document.createDocumentFragment();
 
   for (var i = 0; i < listAds.length; i++) {
