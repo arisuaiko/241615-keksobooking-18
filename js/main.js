@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 'use strict';
 
 var AMOUNT = 8;
@@ -12,13 +10,11 @@ var MAX_ROOMS = 16;
 var PIN_HEIGHT = 70;
 var PIN_WIDTH = 50;
 
-
 var OFFER_TYPES = ['palace', 'flat', 'house', 'bungalo'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_TITLES = ['Удобная квартира', 'Неудобная квартира', 'Классный дом', 'Неклассный дом', 'Супер бунгало', 'Не супер бунгало', 'Дворец для инстраграма', 'Дворец не для инстраграма'];
 var HOURS = ['12:00', '13:00', '14:00'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
-
 
 // Функция, возвращающая случайный элемемент массива
 function getRandomElement(array) {
@@ -53,10 +49,9 @@ function getRandomArrayElements(array) {
   return array;
 }
 
-
 // Создаем массив из 8 сгенерированных JS объектов
 function generateAdvert() {
-  var adverts = [];
+  var advert = [];
   var avatarForUser = generateAvatar();
 
   for (var i = 0; i < AMOUNT; i++) {
@@ -190,7 +185,6 @@ function insertPins(template) {
 }
 var mapDialog = document.querySelector('.map');
 mapDialog.classList.remove('map--faded');
-
 var mapPinTemplate = document.querySelector('#pin').content.querySelector('button');
 var pinsFragment = insertPins(mapPinTemplate);
 var pinMap = document.querySelector('.map__pins');
@@ -200,4 +194,3 @@ var mapCardTemplate = document.querySelector('#card').content.querySelector('art
 var cardFragment = createCard(listAds[0]);
 var mapFiltersContainer = document.querySelector('.map__filters-container');
 mapDialog.insertBefore(cardFragment, mapFiltersContainer);
->>>>>>> Stashed changes
