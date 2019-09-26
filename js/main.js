@@ -51,7 +51,7 @@ function getRandomArrayElements(array) {
 
 // Создаем массив из 8 сгенерированных JS объектов
 function generateAdvert() {
-  var advert = [];
+  var adverts = [];
   var avatarForUser = generateAvatar();
 
   for (var i = 0; i < AMOUNT; i++) {
