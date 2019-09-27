@@ -38,7 +38,7 @@ function generateAvatar() {
   return avatarsLists;
 }
 
-// Функция, генерирующая новый случайный массив из массива
+// Функция, перемешивающая массив
 function getRandomArrayElements(array) {
   for (var i = array.length - 1; i > 0; i--) {
     var randomIndex = Math.floor(Math.random() * (i + 1));
@@ -115,7 +115,7 @@ function createCard(card) {
 
   popupTitle.textContent = card.offer.title;
   popupAddress.textContent = card.address;
-  popupPrice.innerHTML = card.offer.price + '&#x20bd/ночь';
+  popupPrice.textContent = card.offer.price + '&#x20bd/ночь';
   popupType.textContent = switchType();
   popupCapacity.textContent = card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
   popupTime.textContent = 'Заезд после' + card.offer.checkin + ',' + ' выезд до ' + card.offer.checkout;
@@ -194,3 +194,91 @@ var mapCardTemplate = document.querySelector('#card').content.querySelector('art
 var cardFragment = createCard(listAds[0]);
 var mapFiltersContainer = document.querySelector('.map__filters-container');
 mapDialog.insertBefore(cardFragment, mapFiltersContainer);
+
+var pinMapMain = document.querySelector('.map__pin--main');
+var pinMapMainWidth = pinMapMain.offsetWidth;
+var pinMapMainHeight = pinMapMain.offsetHeight;
+var pinMapMainTop = pinMapMain.offsetTop;
+var pinMapMainLeft = pinMapMain.offsetLeft;
+var addressInput = document.querySelector('#address');
+
+function addCoordinateToInactiveAddress() {
+  var centerX = Math.floor(pinMapMainLeft + pinMapMainWidth / 2);
+  var centerY = Math.floor(pinMapMainTop + pinMapMainHeight / 2);
+  return centerX + centerY;
+}
+
+function addCoordinateToActiveAddress() {
+  var centerX = Math.floor(pinMapMainLeft + pinMapMainWidth / 2);
+  var centerY = Math.floor(pinMapMainTop + (pinMapMainHeight + 2) / 2);
+  return centerX + centerY;
+}
+
+function makePageIncactive() {
+  mapDialog.classList.add('map--faded');
+  var fieldsetAdFormHeader = document.querySelector('.ad-form-header');
+  fieldsetAdFormHeader.disabled = true;
+  var fieldsetAdFormElementTitle = document.querySelectorAll('.ad-form__element');
+  for (var i = 0; i < fieldsetAdFormElementTitle.length; i++) {
+    fieldsetAdFormElementTitle[i].disabled = true;
+  }
+  var filtersContainerSelectors = document.querySelectorAll('select');
+  for (var j = 0; j < filtersContainerSelectors.length; j++) {
+    filtersContainerSelectors[j].disabled = true;
+  }
+  addressInput.value = addCoordinateToInactiveAddress();
+}
+
+function makePageActive() {
+  mapDialog.classList.remove('map--faded');
+  var fieldsetAdFormHeader = document.querySelector('.ad-form-header');
+  fieldsetAdFormHeader.disabled = false;
+  var fieldsetAdFormElementTitle = document.querySelectorAll('.ad-form__element');
+  for (var i = 0; i < fieldsetAdFormElementTitle.length; i++) {
+    fieldsetAdFormElementTitle[i].disabled = false;
+  }
+  var filtersContainerSelectors = document.querySelectorAll('select');
+  for (var j = 0; j < filtersContainerSelectors.length; j++) {
+    filtersContainerSelectors[j].disabled = false;
+  }
+  addressInput.value = addCoordinateToActiveAddress();
+}
+
+var housingRooms = document.querySelector('#room_number');
+var housingGests = document.querySelector('#capacity');
+
+housingGests.addEventListener('change', function () {
+  var housingRoomsValue = housingRooms.value;
+  if (housingGests.value > housingRoomsValue) {
+    housingGests.setCustomValidity('Число гостей не соответствует количеству комнат');
+  } else {
+    housingGests.setCustomValidity('');
+  }
+});
+
+housingRooms.addEventListener('change', function () {
+  var housingGestsValue = housingGests.value;
+
+  if (housingRooms.value < housingGestsValue) {
+    housingRooms.setCustomValidity('Число комнат не соответствует количеству гостей');
+  } else {
+    housingRooms.setCustomValidity('');
+  }
+});
+
+makePageIncactive();
+
+pinMapMain.addEventListener('mousedown', function () {
+  makePageActive();
+});
+
+pinMapMain.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === 13) {
+    makePageActive();
+  }
+});
+
+var adFormResetButton = document.querySelector('.ad-form__reset');
+adFormResetButton.addEventListener('click', function () {
+  makePageIncactive();
+});
