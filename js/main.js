@@ -100,25 +100,27 @@ function createPin(template, markers) {
     clickOnPin(element, marker);
     fragment.appendChild(element);
   }
-  return element;
+  return fragment;
 }
 
 function clickOnPin(element, marker) {
   element.addEventListener('click', function () {
     var mapFiltersContainer = document.querySelector('.map__filters-container');
+    var cardPopUp = document.querySelector('.popup');
+    if (cardPopUp) {
+      cardPopUp.remove();
+    }
     var cardFragment = createCard(marker);
     mapDialog.insertBefore(cardFragment, mapFiltersContainer);
   });
 }
 
+var listAds = generateAdvert();
+
 var mapDialog = document.querySelector('.map');
 var mapPinTemplate = document.querySelector('#pin').content.querySelector('button');
 var mapCardTemplate = document.querySelector('#card').content.querySelector('article');
 
-var listAds = generateAdvert();
-var pinsFragment = createPin(mapPinTemplate, listAds);
-var pinMap = document.querySelector('.map__pins');
-pinMap.append(pinsFragment);
 
 // Cоздаём DOM-элемент объявления, заполняем его данными из объекта:
 function createCard(card) {
@@ -269,6 +271,9 @@ makePageIncactive(mapDialog, fieldsetAdFormHeader, fieldsetAdFormElementTitle, f
 pinMapMain.addEventListener('mousedown', function () {
   makePageActive(mapDialog, fieldsetAdFormHeader, fieldsetAdFormElementTitle, filtersContainerSelectors);
   checkValidationRoomsAndGuests();
+  var pinsFragment = createPin(mapPinTemplate, listAds);
+  var pinMap = document.querySelector('.map__pins');
+  pinMap.append(pinsFragment);
 });
 
 pinMapMain.addEventListener('keydown', function (evt) {
