@@ -86,17 +86,39 @@ function generateAdvert() {
 }
 
 // Вставляем данные в шаблон, по которому будут собираться все метки для карты
-function createPin(template, marker) {
-  var element = template.cloneNode(true);
+function createPin(template, markers) {
+  var fragment = document.createDocumentFragment();
+  for (var i = 0; i < markers.length; i++) {
+    var element = template.cloneNode(true);
+    var marker = markers[i];
 
-  var userAvatar = element.querySelector('img');
-  userAvatar.src = marker.author.avatar;
-  userAvatar.alt = marker.offer.title;
-  element.style.left = (marker.location.x + PIN_WIDTH / 2) + 'px';
-  element.style.top = (marker.location.y + PIN_HEIGHT) + 'px';
-
+    var userAvatar = element.querySelector('img');
+    userAvatar.src = marker.author.avatar;
+    userAvatar.alt = marker.offer.title;
+    element.style.left = (marker.location.x + PIN_WIDTH / 2) + 'px';
+    element.style.top = (marker.location.y + PIN_HEIGHT) + 'px';
+    clickOnPin(element, marker);
+    fragment.appendChild(element);
+  }
   return element;
 }
+
+function clickOnPin(element, marker) {
+  element.addEventListener('click', function () {
+    var mapFiltersContainer = document.querySelector('.map__filters-container');
+    var cardFragment = createCard(marker);
+    mapDialog.insertBefore(cardFragment, mapFiltersContainer);
+  });
+}
+
+var mapDialog = document.querySelector('.map');
+var mapPinTemplate = document.querySelector('#pin').content.querySelector('button');
+var mapCardTemplate = document.querySelector('#card').content.querySelector('article');
+
+var listAds = generateAdvert();
+var pinsFragment = createPin(mapPinTemplate, listAds);
+var pinMap = document.querySelector('.map__pins');
+pinMap.append(pinsFragment);
 
 // Cоздаём DOM-элемент объявления, заполняем его данными из объекта:
 function createCard(card) {
@@ -174,111 +196,89 @@ function addPhotoElement(arrayPhotos, element) {
 }
 
 
-var listAds = generateAdvert();
-
-function insertPins(template) {
-  var fragment = document.createDocumentFragment();
-  for (var i = 0; i < listAds.length; i++) {
-    fragment.appendChild(createPin(template, listAds[i]));
-  }
-  return fragment;
-}
-var mapDialog = document.querySelector('.map');
-mapDialog.classList.remove('map--faded');
-var mapPinTemplate = document.querySelector('#pin').content.querySelector('button');
-var pinsFragment = insertPins(mapPinTemplate);
-var pinMap = document.querySelector('.map__pins');
-pinMap.append(pinsFragment);
-
-var mapCardTemplate = document.querySelector('#card').content.querySelector('article');
-var cardFragment = createCard(listAds[0]);
-var mapFiltersContainer = document.querySelector('.map__filters-container');
-mapDialog.insertBefore(cardFragment, mapFiltersContainer);
-
 var pinMapMain = document.querySelector('.map__pin--main');
-var pinMapMainWidth = pinMapMain.offsetWidth;
-var pinMapMainHeight = pinMapMain.offsetHeight;
-var pinMapMainTop = pinMapMain.offsetTop;
-var pinMapMainLeft = pinMapMain.offsetLeft;
 var addressInput = document.querySelector('#address');
+var fieldsetAdFormHeader = document.querySelector('.ad-form-header');
+var fieldsetAdFormElementTitle = document.querySelectorAll('.ad-form__element');
+var filtersContainerSelectors = document.querySelectorAll('select');
 
-function addCoordinateToInactiveAddress() {
-  var centerX = Math.floor(pinMapMainLeft + pinMapMainWidth / 2);
-  var centerY = Math.floor(pinMapMainTop + pinMapMainHeight / 2);
-  return centerX + centerY;
+
+function addCoordinateToInactiveAddress(coordinate) {
+  var centerX = Math.floor(coordinate.offsetLeft + coordinate.offsetWidth / 2);
+  var centerY = Math.floor(coordinate.offsetTop + coordinate.offsetHeight / 2);
+  return centerX + ',' + centerY;
 }
 
-function addCoordinateToActiveAddress() {
-  var centerX = Math.floor(pinMapMainLeft + pinMapMainWidth / 2);
-  var centerY = Math.floor(pinMapMainTop + (pinMapMainHeight + 2) / 2);
-  return centerX + centerY;
+function addCoordinateToActiveAddress(coordinate) {
+  var centerX = Math.floor(coordinate.offsetLeft + coordinate.offsetWidth / 2);
+  var centerY = Math.floor(coordinate.offsetTop + (coordinate.offsetHeight + 22) / 2);
+  return centerX + ',' + centerY;
 }
 
-function makePageIncactive() {
-  mapDialog.classList.add('map--faded');
-  var fieldsetAdFormHeader = document.querySelector('.ad-form-header');
-  fieldsetAdFormHeader.disabled = true;
-  var fieldsetAdFormElementTitle = document.querySelectorAll('.ad-form__element');
-  for (var i = 0; i < fieldsetAdFormElementTitle.length; i++) {
-    fieldsetAdFormElementTitle[i].disabled = true;
+function makePageIncactive(template, fieldsetheader, fieldsettitle, fieldsetselector) {
+  template.classList.add('map--faded');
+  fieldsetheader.disabled = true;
+  for (var i = 0; i < fieldsettitle.length; i++) {
+    fieldsettitle[i].disabled = true;
   }
-  var filtersContainerSelectors = document.querySelectorAll('select');
-  for (var j = 0; j < filtersContainerSelectors.length; j++) {
-    filtersContainerSelectors[j].disabled = true;
+
+  for (var j = 0; j < fieldsetselector.length; j++) {
+    fieldsetselector[j].disabled = true;
   }
-  addressInput.value = addCoordinateToInactiveAddress();
+  addressInput.value = addCoordinateToInactiveAddress(pinMapMain);
 }
 
-function makePageActive() {
-  mapDialog.classList.remove('map--faded');
-  var fieldsetAdFormHeader = document.querySelector('.ad-form-header');
-  fieldsetAdFormHeader.disabled = false;
-  var fieldsetAdFormElementTitle = document.querySelectorAll('.ad-form__element');
-  for (var i = 0; i < fieldsetAdFormElementTitle.length; i++) {
-    fieldsetAdFormElementTitle[i].disabled = false;
+function makePageActive(template, fieldsetheader, fieldsettitle, fieldsetselector) {
+  template.classList.remove('map--faded');
+  var adForm = document.querySelector('.ad-form');
+  adForm.classList.remove('ad-form--disabled');
+  fieldsetheader.disabled = false;
+  for (var i = 0; i < fieldsettitle.length; i++) {
+    fieldsettitle[i].disabled = false;
   }
-  var filtersContainerSelectors = document.querySelectorAll('select');
-  for (var j = 0; j < filtersContainerSelectors.length; j++) {
-    filtersContainerSelectors[j].disabled = false;
+
+  for (var j = 0; j < fieldsetselector.length; j++) {
+    fieldsetselector[j].disabled = false;
   }
-  addressInput.value = addCoordinateToActiveAddress();
+  addressInput.value = addCoordinateToActiveAddress(pinMapMain);
 }
 
-var housingRooms = document.querySelector('#room_number');
-var housingGests = document.querySelector('#capacity');
+function checkValidationRoomsAndGuests() {
+  var housingRooms = document.querySelector('#room_number');
+  var housingGests = document.querySelector('#capacity');
 
-housingGests.addEventListener('change', function () {
-  var housingRoomsValue = housingRooms.value;
-  if (housingGests.value > housingRoomsValue) {
-    housingGests.setCustomValidity('Число гостей не соответствует количеству комнат');
-  } else {
-    housingGests.setCustomValidity('');
-  }
-});
+  housingGests.addEventListener('change', function () {
+    if (housingGests.value >= housingRooms.value) {
+      housingGests.setCustomValidity('Число гостей не соответствует количеству комнат');
+    } else {
+      housingGests.setCustomValidity('');
+    }
+  });
 
-housingRooms.addEventListener('change', function () {
-  var housingGestsValue = housingGests.value;
+  housingRooms.addEventListener('change', function () {
+    if (housingRooms.value <= housingGests.value) {
+      housingRooms.setCustomValidity('Число комнат не соответствует количеству гостей');
+    } else {
+      housingRooms.setCustomValidity('');
+    }
+  });
+}
 
-  if (housingRooms.value < housingGestsValue) {
-    housingRooms.setCustomValidity('Число комнат не соответствует количеству гостей');
-  } else {
-    housingRooms.setCustomValidity('');
-  }
-});
-
-makePageIncactive();
+makePageIncactive(mapDialog, fieldsetAdFormHeader, fieldsetAdFormElementTitle, filtersContainerSelectors);
 
 pinMapMain.addEventListener('mousedown', function () {
-  makePageActive();
+  makePageActive(mapDialog, fieldsetAdFormHeader, fieldsetAdFormElementTitle, filtersContainerSelectors);
+  checkValidationRoomsAndGuests();
 });
 
 pinMapMain.addEventListener('keydown', function (evt) {
   if (evt.keyCode === 13) {
-    makePageActive();
+    makePageActive(mapDialog, fieldsetAdFormHeader, fieldsetAdFormElementTitle, filtersContainerSelectors);
   }
 });
 
 var adFormResetButton = document.querySelector('.ad-form__reset');
 adFormResetButton.addEventListener('click', function () {
-  makePageIncactive();
+  makePageIncactive(mapDialog, fieldsetAdFormHeader, fieldsetAdFormElementTitle, filtersContainerSelectors);
 });
+
