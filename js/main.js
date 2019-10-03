@@ -245,32 +245,30 @@ function makePageActive(template, fieldsetheader, fieldsettitle, fieldsetselecto
   addressInput.value = addCoordinateToActiveAddress(pinMapMain);
 }
 
+var housingRoomsSelect = document.querySelector('#room_number');
+var housingGuestsSelect = document.querySelector('#capacity');
+
+
 function checkValidationRoomsAndGuests() {
-  var housingRooms = document.querySelector('#room_number');
-  var housingGests = document.querySelector('#capacity');
 
-  housingGests.addEventListener('change', function () {
-    if (housingGests.value >= housingRooms.value) {
-      housingGests.setCustomValidity('Число гостей не соответствует количеству комнат');
-    } else {
-      housingGests.setCustomValidity('');
-    }
-  });
-
-  housingRooms.addEventListener('change', function () {
-    if (housingRooms.value <= housingGests.value) {
-      housingRooms.setCustomValidity('Число комнат не соответствует количеству гостей');
-    } else {
-      housingRooms.setCustomValidity('');
-    }
-  });
+  var roomNumber = housingRoomsSelect.value;
+  var guestNumber = housingGuestsSelect.value;
+  if (roomNumber === '0') {
+    housingGuestsSelect.setCustomValidity('Не предназначено для гостей');
+  } else if (guestNumber > roomNumber) {
+    housingGuestsSelect.setCustomValidity('Колличество комнат должно быть больше');
+  } else {
+    housingGuestsSelect.setCustomValidity('');
+  }
 }
+
+housingGuestsSelect.addEventListener('change', checkValidationRoomsAndGuests);
+housingRoomsSelect.addEventListener('change', checkValidationRoomsAndGuests);
 
 makePageIncactive(mapDialog, fieldsetAdFormHeader, fieldsetAdFormElementTitle, filtersContainerSelectors);
 
 pinMapMain.addEventListener('mousedown', function () {
   makePageActive(mapDialog, fieldsetAdFormHeader, fieldsetAdFormElementTitle, filtersContainerSelectors);
-  checkValidationRoomsAndGuests();
   var pinsFragment = createPin(mapPinTemplate, listAds);
   var pinMap = document.querySelector('.map__pins');
   pinMap.append(pinsFragment);
