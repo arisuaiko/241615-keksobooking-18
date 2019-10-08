@@ -106,21 +106,17 @@ function createPin(template, markers) {
 function clickOnPin(element, marker) {
   element.addEventListener('click', function () {
     var mapFiltersContainer = document.querySelector('.map__filters-container');
-    var cardPopUp = document.querySelector('.popup');
-    if (cardPopUp) {
-      cardPopUp.remove();
-    }
     var cardFragment = createCard(marker);
     mapDialog.insertBefore(cardFragment, mapFiltersContainer);
 
-    var cardPopUpClosing = document.querySelector('.popup__close');
+    var cardPopUpClosing = cardFragment.querySelector('.popup__close');
     cardPopUpClosing.addEventListener('click', function () {
-      document.querySelector('.popup').classList.add('hidden');
+      cardFragment.remove();
     });
 
     cardPopUpClosing.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === 13) {
-        document.querySelector('.popup').classList.add('hidden');
+      if (evt.keyCode === 27) {
+        cardFragment.remove();
       }
     });
   });
